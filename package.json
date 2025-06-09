@@ -1,0 +1,18 @@
+{
+  "name": "gainesport-university-site",
+  "version": "1.0.0",
+  "description": "Gainesport University website with build tools",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "python -m http.server 8000",
+    "dev-built": "cd dist && python -m http.server 8001"
+  },
+  "devDependencies": {
+    "html-minifier-terser": "^7.2.0",
+    "clean-css": "^5.3.2",
+    "terser": "^5.19.2",
+    "imagemin": "^8.0.1",
+    "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-pngquant": "^9.0.2"
+  }
+}

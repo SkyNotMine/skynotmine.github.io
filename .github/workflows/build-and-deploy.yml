@@ -1,0 +1,204 @@
+name: Build and Deploy Minified Site
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Create package.json for minification tools
+      run: |
+        cat > package.json << 'EOF'
+        {
+          "name": "gainesport-university-site",
+          "version": "1.0.0",
+          "description": "Minification tools for Gainesport University website",
+          "scripts": {
+            "build": "node build.js"
+          },
+          "devDependencies": {
+            "html-minifier-terser": "^7.2.0",
+            "clean-css": "^5.3.2",
+            "terser": "^5.19.2",
+            "imagemin": "^8.0.1",
+            "imagemin-mozjpeg": "^10.0.0",
+            "imagemin-pngquant": "^9.0.2"
+          }
+        }
+        EOF
+    
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Create build script
+      run: |
+        cat > build.js << 'EOF'
+        const fs = require('fs');
+        const path = require('path');
+        const { minify: minifyHTML } = require('html-minifier-terser');
+        const CleanCSS = require('clean-css');
+        const { minify: minifyJS } = require('terser');
+        
+        // Create dist directory
+        if (!fs.existsSync('dist')) {
+          fs.mkdirSync('dist', { recursive: true });
+        }
+        
+        // Copy img directory
+        if (fs.existsSync('img')) {
+          fs.cpSync('img', 'dist/img', { recursive: true });
+        }
+        
+        // Minify HTML
+        async function minifyHTMLFile() {
+          try {
+            const html = fs.readFileSync('index.html', 'utf8');
+            const minified = await minifyHTML(html, {
+              removeComments: true,
+              removeRedundantAttributes: true,
+              removeScriptTypeAttributes: true,
+              removeStyleLinkTypeAttributes: true,
+              sortClassName: true,
+              useShortDoctype: true,
+              collapseWhitespace: true,
+              conservativeCollapse: true,
+              minifyCSS: true,
+              minifyJS: true
+            });
+            fs.writeFileSync('dist/index.html', minified);
+            console.log('✅ HTML minified');
+          } catch (error) {
+            console.error('❌ HTML minification failed:', error);
+          }
+        }
+        
+        // Minify CSS
+        function minifyCSSFile() {
+          try {
+            const css = fs.readFileSync('style.css', 'utf8');
+            const minified = new CleanCSS({
+              level: 2,
+              returnPromise: false
+            }).minify(css);
+            
+            if (minified.errors.length > 0) {
+              console.error('CSS errors:', minified.errors);
+            }
+            
+            fs.writeFileSync('dist/style.css', minified.styles);
+            console.log('✅ CSS minified');
+            console.log(`📊 CSS size reduction: ${((css.length - minified.styles.length) / css.length * 100).toFixed(1)}%`);
+          } catch (error) {
+            console.error('❌ CSS minification failed:', error);
+          }
+        }
+        
+        // Minify JavaScript
+        async function minifyJSFile() {
+          try {
+            const js = fs.readFileSync('script.js', 'utf8');
+            const minified = await minifyJS(js, {
+              compress: {
+                drop_console: false,
+                drop_debugger: true
+              },
+              mangle: true,
+              format: {
+                comments: false
+              }
+            });
+            
+            if (minified.error) {
+              console.error('JS minification error:', minified.error);
+              return;
+            }
+            
+            fs.writeFileSync('dist/script.js', minified.code);
+            console.log('✅ JavaScript minified');
+            console.log(`📊 JS size reduction: ${((js.length - minified.code.length) / js.length * 100).toFixed(1)}%`);
+          } catch (error) {
+            console.error('❌ JavaScript minification failed:', error);
+          }
+        }
+        
+        // Copy other important files
+        function copyOtherFiles() {
+          const filesToCopy = ['sitemap.xml', 'robots.txt', 'README.md'];
+          filesToCopy.forEach(file => {
+            if (fs.existsSync(file)) {
+              fs.copyFileSync(file, `dist/${file}`);
+              console.log(`✅ Copied ${file}`);
+            }
+          });
+        }
+        
+        // Run all minification tasks
+        async function build() {
+          console.log('🚀 Starting build process...');
+          await minifyHTMLFile();
+          minifyCSSFile();
+          await minifyJSFile();
+          copyOtherFiles();
+          console.log('✅ Build complete! Files are in the dist/ directory');
+        }
+        
+        build().catch(console.error);
+        EOF
+    
+    - name: Build and minify files
+      run: npm run build
+    
+    - name: List built files
+      run: |
+        echo "📁 Built files:"
+        ls -la dist/
+        echo ""
+        echo "📊 File sizes comparison:"
+        echo "Original files:"
+        du -h index.html style.css script.js 2>/dev/null || true
+        echo "Minified files:"
+        du -h dist/index.html dist/style.css dist/script.js 2>/dev/null || true
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './dist'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
