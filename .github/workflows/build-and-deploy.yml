@@ -3,8 +3,7 @@ name: Build and Deploy Minified Site
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch: # Allow manual triggering
 
 permissions:
   contents: read
