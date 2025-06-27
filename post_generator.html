@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Update Post Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #e11d48;
+            --dark-bg: #0a0a1a;
+            --light-bg: #1e1e3f;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--border);
+            color: white;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .bullet-points, .tags-container, .images-container, .code-snippets-container, .videos-container, .links-container {
+            margin-top: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .input-group input, .input-group select {
+            flex-grow: 1;
+        }
+
+        .remove-item {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .add-item {
+            background-color: var(--border);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            margin-top: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            gap: 5px;
+        }
+
+        .add-item:hover {
+            background-color: #475569;
+        }
+
+        #output {
+            margin-top: 30px;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            display: none;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .copy-btn {
+            background-color: var(--border);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            margin-top: 10px;
+            color: var(--success);
+            display: none;
+        }
+
+        .current-json {
+            margin-top: 30px;
+        }
+
+        .current-json h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .json-content {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-family: monospace;
+            color: #94a3b8;
+        }
+
+        .update-preview {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 30px;
+            display: none;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .update-preview h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .timeline-item {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--primary);
+            margin-bottom: 20px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .timeline-content h3 {
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .timeline-date {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            background-color: transparent;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .tab-button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-button:not(.active):hover {
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .image-size-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            align-items: center;
+        }
+
+        .image-size-controls label {
+            margin-bottom: 0;
+            min-width: 60px;
+        }
+
+        .image-size-controls input {
+            max-width: 100px;
+        }
+
+        .error-text {
+            color: var(--secondary);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .preview-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .preview-code {
+            background: #1a1a36;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            position: relative;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .preview-code-language {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 0 6px 0 6px;
+            font-size: 12px;
+        }
+
+        .poll-preview {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .poll-option-preview {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        fieldset {
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            padding: 0 10px;
+            color: var(--primary);
+        }
+
+        .collapsible-section {
+            margin-bottom: 20px;
+        }
+
+        .collapsible-header {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 0 0 6px 6px;
+            margin-top: 2px;
+        }
+
+        .collapsible-header.active + .collapsible-content {
+            display: block;
+        }
+
+        .collapsible-header i {
+            transition: transform 0.3s;
+        }
+
+        .collapsible-header.active i {
+            transform: rotate(180deg);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            color: var(--text-muted);
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+            font-weight: normal;
+            pointer-events: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Development Update Post Generator</h1>
+
+        <div class="tab-container">
+            <div class="tab-navigation">
+                <button class="tab-button active" data-tab="basic">Basic Info</button>
+                <button class="tab-button" data-tab="media">Media</button>
+                <button class="tab-button" data-tab="code">Code</button>
+                <button class="tab-button" data-tab="additional">Additional</button>
+            </div>
+
+            <form id="post-form">
+                <div class="tab-content active" id="basic-tab">
+                    <div class="form-group">
+                        <label for="title">Update Title</label>
+                        <input type="text" id="title" name="title" placeholder="e.g. New Character Designs" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Update Date</label>
+                        <input type="text" id="date" name="date" placeholder="e.g. June 2025" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Update Description</label>
+                        <textarea id="description" name="description" placeholder="Describe the update..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tags <span class="tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Add categories or keywords related to this update</span></span></label>
+                        <div class="tags-container" id="tags-container">
+                            <div class="input-group">
+                                <input type="text" class="tag-input" placeholder="e.g. development">
+                                <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-item" id="add-tag">
+                            <i class="fas fa-plus"></i> Add Tag
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bullet Points (Optional)</label>
+                        <div class="bullet-points" id="bullet-points-container">
+                            <div class="input-group">
+                                <input type="text" class="bullet-point" placeholder="e.g. Added new character sprites">
+                                <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-item" id="add-bullet">
+                            <i class="fas fa-plus"></i> Add Bullet Point
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="media-tab">
+                    <div class="collapsible-section">
+                        <div class="collapsible-header">
+                            <h3>Images</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <p class="help-text">Add images to your update. A single image allows custom size settings, multiple images will display in a grid.</p>
+
+                            <div class="images-container" id="images-container">
+                                <div class="input-group image-input-group">
+                                    <input type="url" class="image-url" placeholder="Image URL (e.g. img/example.png)">
+                                    <input type="text" class="image-alt" placeholder="Alt text (description)">
+                                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="image-size-controls">
+                                    <label>Width:</label>
+                                    <input type="text" class="image-width" placeholder="e.g. 500px">
+                                    <label>Height:</label>
+                                    <input type="text" class="image-height" placeholder="e.g. auto">
+                                </div>
+                                <button type="button" class="btn btn-secondary preview-image-btn" style="margin-top: 10px;">Preview Image</button>
+                                <img class="image-preview" style="display: none;">
+                            </div>
+
+                            <button type="button" class="add-item" id="add-image">
+                                <i class="fas fa-plus"></i> Add Another Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-section">
+                        <div class="collapsible-header">
+                            <h3>Videos</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <p class="help-text">Add video links or embeds to your update.</p>
+
+                            <div class="videos-container" id="videos-container">
+                                <div class="input-group">
+                                    <input type="url" class="video-url" placeholder="Video URL (YouTube, Vimeo, etc.)">
+                                    <input type="text" class="video-title" placeholder="Video title">
+                                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="input-group" style="margin-top: 10px;">
+                                    <label style="min-width: 70px;">Embed?</label>
+                                    <select class="video-embed">
+                                        <option value="false">No (link only)</option>
+                                        <option value="true">Yes (embed player)</option>
+                                    </select>
+                                </div>
+                                <div class="input-group video-size-controls" style="display: none; margin-top: 10px;">
+                                    <label style="min-width: 70px;">Width:</label>
+                                    <input type="text" class="video-width" placeholder="e.g. 100%" value="100%">
+                                    <label style="min-width: 70px;">Height:</label>
+                                    <input type="text" class="video-height" placeholder="e.g. 315px" value="315px">
+                                </div>
+                            </div>
+
+                            <button type="button" class="add-item" id="add-video">
+                                <i class="fas fa-plus"></i> Add Another Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="code-tab">
+                    <div class="form-group">
+                        <label>Code Snippets <span class="tooltip"><i class="fas fa-question-circle"></i><span class="tooltip-text">Add code examples or technical details</span></span></label>
+
+                        <div class="code-snippets-container" id="code-snippets-container">
+                            <div class="code-snippet-item">
+                                <div class="input-group">
+                                    <input type="text" class="code-language" placeholder="Language (e.g. javascript, python)">
+                                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="form-group" style="margin-top: 10px;">
+                                    <textarea class="code-content" placeholder="Paste your code here..." rows="6"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="add-item" id="add-code-snippet">
+                            <i class="fas fa-plus"></i> Add Code Snippet
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="additional-tab">
+                    <div class="collapsible-section">
+                        <div class="collapsible-header">
+                            <h3>Poll</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="form-group">
+                                <label for="poll-question">Poll Question</label>
+                                <input type="text" id="poll-question" placeholder="e.g. Which feature would you like to see next?">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Poll Options</label>
+                                <div class="poll-options-container" id="poll-options-container">
+                                    <div class="input-group">
+                                        <input type="text" class="poll-option" placeholder="Option 1">
+                                        <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="add-item" id="add-poll-option">
+                                    <i class="fas fa-plus"></i> Add Poll Option
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-section">
+                        <div class="collapsible-header">
+                            <h3>Links</h3>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="collapsible-content">
+                            <p class="help-text">Add external links to your update.</p>
+
+                            <div class="links-container" id="links-container">
+                                <div class="input-group">
+                                    <input type="url" class="link-url" placeholder="URL (e.g. https://example.com)">
+                                    <input type="text" class="link-text" placeholder="Link text">
+                                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                                </div>
+                                <div class="input-group" style="margin-top: 10px;">
+                                    <label style="min-width: 70px;">Icon:</label>
+                                    <select class="link-icon">
+                                        <option value="">None</option>
+                                        <option value="link">Link</option>
+                                        <option value="download">Download</option>
+                                        <option value="github">GitHub</option>
+                                        <option value="twitter">Twitter</option>
+                                        <option value="discord">Discord</option>
+                                        <option value="external-link-alt">External</option>
+                                        <option value="file">File</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="button" class="add-item" id="add-link">
+                                <i class="fas fa-plus"></i> Add Another Link
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button type="submit" class="btn btn-primary">Generate JSON</button>
+                    <button type="button" class="btn btn-secondary" id="preview-btn">Preview</button>
+                    <button type="reset" class="btn btn-danger">Clear Form</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="output">
+            <!-- Generated JSON will appear here -->
+        </div>
+        <button id="copy-btn" class="copy-btn" style="display: none;">
+            <i class="fas fa-copy"></i> Copy to Clipboard
+        </button>
+        <p class="success-message" id="copy-message">Copied to clipboard!</p>
+
+        <div class="update-preview" id="update-preview">
+            <h2>Preview</h2>
+            <div id="preview-content"></div>
+        </div>
+
+        <div class="current-json">
+            <h2>Current Updates in dev-updates.json</h2>
+            <div class="json-content" id="current-json">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading current data...</p>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="update-json-btn">Update JSON File</button>
+        </div>
+    </div>
+
+    <script>
+        // Get current JSON data when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadCurrentJson();
+
+            // Initialize tab functionality
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+                    button.classList.add('active');
+                    document.getElementById(`${button.dataset.tab}-tab`).classList.add('active');
+                });
+            });
+
+            // Initialize collapsible sections
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    header.classList.toggle('active');
+                });
+            });
+
+            // Initialize video embed toggle
+            document.querySelectorAll('.video-embed').forEach(select => {
+                select.addEventListener('change', function() {
+                    const sizeControls = this.closest('.input-group').nextElementSibling;
+                    sizeControls.style.display = this.value === 'true' ? 'flex' : 'none';
+                });
+            });
+
+            // Initialize image preview
+            document.querySelectorAll('.preview-image-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const urlInput = this.closest('.images-container').querySelector('.image-url');
+                    const previewImg = this.closest('.images-container').querySelector('.image-preview');
+
+                    if (urlInput.value) {
+                        previewImg.src = urlInput.value;
+                        previewImg.style.display = 'block';
+                        previewImg.onerror = function() {
+                            previewImg.style.display = 'none';
+                            alert('Could not load image. Please check the URL.');
+                        };
+                    } else {
+                        alert('Please enter an image URL first.');
+                    }
+                });
+            });
+
+            // Initialize add/remove item functionality
+            initializeAddRemoveItems();
+
+            // Form submission
+            const postForm = document.getElementById('post-form');
+            postForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                generateJson();
+            });
+
+            // Copy to clipboard functionality
+            document.getElementById('copy-btn').addEventListener('click', copyToClipboard);
+
+            // Preview functionality
+            document.getElementById('preview-btn').addEventListener('click', generatePreview);
+
+            // Update JSON file
+            document.getElementById('update-json-btn').addEventListener('click', updateJsonFile);
+        });
+
+        function initializeAddRemoveItems() {
+            // Bullet points
+            document.getElementById('add-bullet').addEventListener('click', () => {
+                addItemToContainer('bullet-points-container', 'bullet-point', 'e.g. Added new character sprites');
+            });
+
+            // Tags
+            document.getElementById('add-tag').addEventListener('click', () => {
+                addItemToContainer('tags-container', 'tag-input', 'e.g. development');
+            });
+
+            // Images
+            document.getElementById('add-image').addEventListener('click', addImageInput);
+
+            // Videos
+            document.getElementById('add-video').addEventListener('click', addVideoInput);
+
+            // Code snippets
+            document.getElementById('add-code-snippet').addEventListener('click', addCodeSnippetInput);
+
+            // Poll options
+            document.getElementById('add-poll-option').addEventListener('click', () => {
+                addItemToContainer('poll-options-container', 'poll-option', 'Option');
+            });
+
+            // Links
+            document.getElementById('add-link').addEventListener('click', addLinkInput);
+
+            // Initialize existing remove buttons
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', handleRemoveItem);
+            });
+        }
+
+        function handleRemoveItem(e) {
+            const containerElement = e.target.closest('[id$="-container"]');
+            const itemElement = e.target.closest('.input-group, .code-snippet-item');
+
+            if (containerElement && itemElement) {
+                // Don't remove if it's the only one left, just clear the inputs
+                const items = containerElement.querySelectorAll('.input-group, .code-snippet-item');
+
+                if (items.length > 1) {
+                    containerElement.removeChild(itemElement);
+                } else {
+                    itemElement.querySelectorAll('input, textarea').forEach(input => {
+                        input.value = '';
+                    });
+                }
+            }
+        }
+
+        function addItemToContainer(containerId, inputClass, placeholder) {
+            const container = document.getElementById(containerId);
+            const newItem = document.createElement('div');
+            newItem.className = 'input-group';
+
+            newItem.innerHTML = `
+                <input type="text" class="${inputClass}" placeholder="${placeholder}">
+                <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+            `;
+
+            container.appendChild(newItem);
+
+            // Add event listener to the new button
+            newItem.querySelector('.remove-item').addEventListener('click', handleRemoveItem);
+
+            // Focus on the new input
+            newItem.querySelector('input').focus();
+        }
+
+        function addImageInput() {
+            const container = document.getElementById('images-container');
+            const newImage = document.createElement('div');
+            newImage.className = 'input-group image-input-group';
+            newImage.style.marginTop = '20px';
+
+            newImage.innerHTML = `
+                <input type="url" class="image-url" placeholder="Image URL (e.g. img/example.png)">
+                <input type="text" class="image-alt" placeholder="Alt text (description)">
+                <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                <div class="image-size-controls" style="margin-top: 10px; width: 100%;">
+                    <label>Width:</label>
+                    <input type="text" class="image-width" placeholder="e.g. 500px">
+                    <label>Height:</label>
+                    <input type="text" class="image-height" placeholder="e.g. auto">
+                </div>
+                <button type="button" class="btn btn-secondary preview-image-btn" style="margin-top: 10px;">Preview Image</button>
+                <img class="image-preview" style="display: none;">
+            `;
+
+            container.appendChild(newImage);
+
+            // Add event listeners
+            newImage.querySelector('.remove-item').addEventListener('click', handleRemoveItem);
+            newImage.querySelector('.preview-image-btn').addEventListener('click', function() {
+                const urlInput = newImage.querySelector('.image-url');
+                const previewImg = newImage.querySelector('.image-preview');
+
+                if (urlInput.value) {
+                    previewImg.src = urlInput.value;
+                    previewImg.style.display = 'block';
+                    previewImg.onerror = function() {
+                        previewImg.style.display = 'none';
+                        alert('Could not load image. Please check the URL.');
+                    };
+                } else {
+                    alert('Please enter an image URL first.');
+                }
+            });
+        }
+
+        function addVideoInput() {
+            const container = document.getElementById('videos-container');
+            const newVideo = document.createElement('div');
+            newVideo.className = 'video-group';
+            newVideo.style.marginTop = '20px';
+            newVideo.style.paddingTop = '20px';
+            newVideo.style.borderTop = '1px solid var(--border)';
+
+            newVideo.innerHTML = `
+                <div class="input-group">
+                    <input type="url" class="video-url" placeholder="Video URL (YouTube, Vimeo, etc.)">
+                    <input type="text" class="video-title" placeholder="Video title">
+                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
+                    <label style="min-width: 70px;">Embed?</label>
+                    <select class="video-embed">
+                        <option value="false">No (link only)</option>
+                        <option value="true">Yes (embed player)</option>
+                    </select>
+                </div>
+                <div class="input-group video-size-controls" style="display: none; margin-top: 10px;">
+                    <label style="min-width: 70px;">Width:</label>
+                    <input type="text" class="video-width" placeholder="e.g. 100%" value="100%">
+                    <label style="min-width: 70px;">Height:</label>
+                    <input type="text" class="video-height" placeholder="e.g. 315px" value="315px">
+                </div>
+            `;
+
+            container.appendChild(newVideo);
+
+            // Add event listeners
+            newVideo.querySelector('.remove-item').addEventListener('click', function() {
+                container.removeChild(newVideo);
+            });
+
+            newVideo.querySelector('.video-embed').addEventListener('change', function() {
+                const sizeControls = newVideo.querySelector('.video-size-controls');
+                sizeControls.style.display = this.value === 'true' ? 'flex' : 'none';
+            });
+        }
+
+        function addCodeSnippetInput() {
+            const container = document.getElementById('code-snippets-container');
+            const newSnippet = document.createElement('div');
+            newSnippet.className = 'code-snippet-item';
+            newSnippet.style.marginTop = '20px';
+            newSnippet.style.paddingTop = '20px';
+            newSnippet.style.borderTop = '1px solid var(--border)';
+
+            newSnippet.innerHTML = `
+                <div class="input-group">
+                    <input type="text" class="code-language" placeholder="Language (e.g. javascript, python)">
+                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <textarea class="code-content" placeholder="Paste your code here..." rows="6"></textarea>
+                </div>
+            `;
+
+            container.appendChild(newSnippet);
+
+            // Add event listener
+            newSnippet.querySelector('.remove-item').addEventListener('click', function() {
+                container.removeChild(newSnippet);
+            });
+        }
+
+        function addLinkInput() {
+            const container = document.getElementById('links-container');
+            const newLink = document.createElement('div');
+            newLink.className = 'link-group';
+            newLink.style.marginTop = '20px';
+            newLink.style.paddingTop = '20px';
+            newLink.style.borderTop = '1px solid var(--border)';
+
+            newLink.innerHTML = `
+                <div class="input-group">
+                    <input type="url" class="link-url" placeholder="URL (e.g. https://example.com)">
+                    <input type="text" class="link-text" placeholder="Link text">
+                    <button type="button" class="remove-item"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="input-group" style="margin-top: 10px;">
+                    <label style="min-width: 70px;">Icon:</label>
+                    <select class="link-icon">
+                        <option value="">None</option>
+                        <option value="link">Link</option>
+                        <option value="download">Download</option>
+                        <option value="github">GitHub</option>
+                        <option value="twitter">Twitter</option>
+                        <option value="discord">Discord</option>
+                        <option value="external-link-alt">External</option>
+                        <option value="file">File</option>
+                    </select>
+                </div>
+            `;
+
+            container.appendChild(newLink);
+
+            // Add event listener
+            newLink.querySelector('.remove-item').addEventListener('click', function() {
+                container.removeChild(newLink);
+            });
+        }
+
+        async function loadCurrentJson() {
+            try {
+                const response = await fetch('data/dev-updates.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load JSON data');
+                }
+
+                const data = await response.json();
+
+                // Display the current JSON data
+                const jsonContent = document.getElementById('current-json');
+                jsonContent.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+
+                return data;
+            } catch (error) {
+                console.error('Error loading JSON data:', error);
+                const jsonContent = document.getElementById('current-json');
+                jsonContent.innerHTML = '<p>Error loading current data. Please check the console for details.</p>';
+                return [];
+            }
+        }
+
+        function generateJson() {
+            const title = document.getElementById('title').value.trim();
+            const date = document.getElementById('date').value.trim();
+            const description = document.getElementById('description').value.trim();
+
+            // Get bullet points
+            const bulletInputs = document.querySelectorAll('.bullet-point');
+            const bulletPoints = Array.from(bulletInputs)
+                .map(input => input.value.trim())
+                .filter(text => text !== ''); // Remove empty bullet points
+
+            // Get tags
+            const tagInputs = document.querySelectorAll('.tag-input');
+            const tags = Array.from(tagInputs)
+                .map(input => input.value.trim())
+                .filter(text => text !== '');
+
+            // Get images
+            const imageGroups = document.querySelectorAll('.image-input-group');
+            const images = Array.from(imageGroups).map(group => {
+                const url = group.querySelector('.image-url').value.trim();
+
+                // Only include non-empty URLs
+                if (url) {
+                    const alt = group.querySelector('.image-alt').value.trim();
+                    const width = group.querySelector('.image-width').value.trim();
+                    const height = group.querySelector('.image-height').value.trim();
+
+                    const image = { url, alt };
+
+                    if (width) image.width = width;
+                    if (height) image.height = height;
+
+                    return image;
+                }
+                return null;
+            }).filter(img => img !== null);
+
+            // Get code snippets
+            const snippetItems = document.querySelectorAll('.code-snippet-item');
+            const codeSnippets = Array.from(snippetItems).map(item => {
+                const language = item.querySelector('.code-language').value.trim();
+                const code = item.querySelector('.code-content').value.trim();
+
+                if (code) {
+                    return { language, code };
+                }
+                return null;
+            }).filter(snippet => snippet !== null);
+
+            // Get video links
+            const videoGroups = document.querySelectorAll('.video-group, #videos-container > div:not(.video-group)');
+            const videoLinks = Array.from(videoGroups).map(group => {
+                const url = group.querySelector('.video-url')?.value.trim();
+
+                if (url) {
+                    const title = group.querySelector('.video-title')?.value.trim();
+                    const embed = group.querySelector('.video-embed')?.value === 'true';
+
+                    const video = { url, title, embed };
+
+                    if (embed) {
+                        const width = group.querySelector('.video-width')?.value.trim();
+                        const height = group.querySelector('.video-height')?.value.trim();
+
+                        if (width) video.width = width;
+                        if (height) video.height = height;
+                    }
+
+                    return video;
+                }
+                return null;
+            }).filter(video => video !== null);
+
+            // Get poll
+            let poll = null;
+            const pollQuestion = document.getElementById('poll-question').value.trim();
+            const pollOptions = Array.from(document.querySelectorAll('.poll-option'))
+                .map(input => input.value.trim())
+                .filter(option => option !== '');
+
+            if (pollQuestion && pollOptions.length >= 2) {
+                poll = {
+                    question: pollQuestion,
+                    options: pollOptions
+                };
+            }
+
+            // Get links
+            const linkGroups = document.querySelectorAll('.link-group, #links-container > div:not(.link-group)');
+            const links = Array.from(linkGroups).map(group => {
+                const url = group.querySelector('.link-url')?.value.trim();
+
+                if (url) {
+                    const text = group.querySelector('.link-text')?.value.trim();
+                    const icon = group.querySelector('.link-icon')?.value;
+
+                    const link = { url, text: text || url };
+                    if (icon) link.icon = icon;
+
+                    return link;
+                }
+                return null;
+            }).filter(link => link !== null);
+
+            // Create the JSON object
+            const updateObj = {
+                title,
+                date,
+                description,
+                bulletPoints,
+                tags,
+                images,
+                codeSnippets,
+                videoLinks
+            };
+
+            // Only include poll and links if they exist
+            if (poll) updateObj.poll = poll;
+            if (links.length > 0) updateObj.links = links;
+
+            // Display the JSON
+            const outputElement = document.getElementById('output');
+            outputElement.textContent = JSON.stringify(updateObj, null, 2);
+            outputElement.style.display = 'block';
+
+            // Show the copy button
+            document.getElementById('copy-btn').style.display = 'flex';
+
+            // Hide any previous success message
+            document.getElementById('copy-message').style.display = 'none';
+
+            return updateObj;
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('output').textContent;
+            navigator.clipboard.writeText(outputText).then(() => {
+                const copyMessage = document.getElementById('copy-message');
+                copyMessage.style.display = 'block';
+
+                // Hide the message after 3 seconds
+                setTimeout(() => {
+                    copyMessage.style.display = 'none';
+                }, 3000);
+            });
+        }
+
+        function generatePreview() {
+            const updateData = generateJson();
+            const previewContainer = document.getElementById('update-preview');
+            const previewContent = document.getElementById('preview-content');
+
+            previewContainer.style.display = 'block';
+
+            // Generate tags HTML
+            let tagsHtml = '';
+            if (updateData.tags && updateData.tags.length > 0) {
+                tagsHtml = `
+                    <div class="preview-tags">
+                        ${updateData.tags.map(tag => `<span class="preview-tag">${tag}</span>`).join('')}
+                    </div>
+                `;
+            }
+
+            // Generate bullet points HTML
+            let bulletPointsHtml = '';
+            if (updateData.bulletPoints && updateData.bulletPoints.length > 0) {
+                bulletPointsHtml = `
+                    <ul>
+                        ${updateData.bulletPoints.map(point => `<li>${point}</li>`).join('')}
+                    </ul>
+                `;
+            }
+
+            // Generate images HTML
+            let imagesHtml = '';
+            if (updateData.images && updateData.images.length > 0) {
+                if (updateData.images.length === 1) {
+                    const image = updateData.images[0];
+                    const style = [];
+                    if (image.width) style.push(`width: ${image.width}`);
+                    if (image.height) style.push(`height: ${image.height}`);
+
+                    imagesHtml = `
+                        <div class="timeline-single-image">
+                            <img src="${image.url}" alt="${image.alt || ''}" style="${style.join('; ')}">
+                        </div>
+                    `;
+                } else {
+                    imagesHtml = `
+                        <div class="timeline-image-grid grid-${Math.min(4, updateData.images.length)}">
+                            ${updateData.images.map(image => `
+                                <div class="grid-image">
+                                    <img src="${image.url}" alt="${image.alt || ''}">
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            // Generate code snippets HTML
+            let codeSnippetsHtml = '';
+            if (updateData.codeSnippets && updateData.codeSnippets.length > 0) {
+                codeSnippetsHtml = updateData.codeSnippets.map(snippet => `
+                    <div class="preview-code">
+                        ${snippet.language ? `<div class="preview-code-language">${snippet.language}</div>` : ''}
+                        <pre><code>${escapeHtml(snippet.code)}</code></pre>
+                    </div>
+                `).join('');
+            }
+
+            // Generate videos HTML
+            let videosHtml = '';
+            if (updateData.videoLinks && updateData.videoLinks.length > 0) {
+                videosHtml = `<div class="preview-videos">`;
+                updateData.videoLinks.forEach(video => {
+                    if (video.embed) {
+                        videosHtml += `
+                            <div class="preview-video-embed">
+                                <p>Embedded video player would appear here for: ${video.url}</p>
+                            </div>
+                        `;
+                    } else {
+                        videosHtml += `
+                            <div class="preview-video-link">
+                                <a href="${video.url}" target="_blank">
+                                    <i class="fas fa-play-circle"></i> ${video.title || 'Watch video'}
+                                </a>
+                            </div>
+                        `;
+                    }
+                });
+                videosHtml += `</div>`;
+            }
+
+            // Generate poll HTML
+            let pollHtml = '';
+            if (updateData.poll) {
+                pollHtml = `
+                    <div class="poll-preview">
+                        <h4>${updateData.poll.question}</h4>
+                        ${updateData.poll.options.map(option => `
+                            <div class="poll-option-preview">${option}</div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // Generate links HTML
+            let linksHtml = '';
+            if (updateData.links && updateData.links.length > 0) {
+                linksHtml = `<div class="preview-links">`;
+                updateData.links.forEach(link => {
+                    linksHtml += `
+                        <a href="${link.url}" target="_blank" class="preview-link">
+                            ${link.icon ? `<i class="fas fa-${link.icon}"></i> ` : ''}${link.text}
+                        </a>
+                    `;
+                });
+                linksHtml += `</div>`;
+            }
+
+            // Create complete preview HTML
+            const previewHtml = `
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>${updateData.title}</h3>
+                        <span class="timeline-date">${updateData.date}</span>
+                        ${tagsHtml}
+                        <p>${updateData.description}</p>
+                        ${bulletPointsHtml}
+                        ${imagesHtml}
+                        ${codeSnippetsHtml}
+                        ${videosHtml}
+                        ${pollHtml}
+                        ${linksHtml}
+                    </div>
+                </div>
+            `;
+
+            previewContent.innerHTML = previewHtml;
+
+            // Scroll to the preview
+            previewContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function escapeHtml(text) {
+            const element = document.createElement('div');
+            element.textContent = text;
+            return element.innerHTML;
+        }
+
+        async function updateJsonFile() {
+            try {
+                // Get the new update object
+                const newUpdate = generateJson();
+
+                // Get the current JSON data
+                const currentData = await loadCurrentJson();
+
+                // Add the new update to the beginning of the array
+                currentData.unshift(newUpdate);
+
+                // The actual file update would need server-side code, so we'll simulate it
+                alert('In a real implementation, this would save to the server.\n\nPlease copy the JSON from the text box above and manually update your dev-updates.json file.');
+
+                // IMPORTANT: In a real implementation, you would need server-side code
+                // to actually write this data to the JSON file. Client-side JavaScript
+                // cannot directly modify files on the server.
+
+                // Refresh the current JSON display with the updated data
+                const jsonContent = document.getElementById('current-json');
+                jsonContent.innerHTML = `<pre>${JSON.stringify(currentData, null, 2)}</pre>`;
+            } catch (error) {
+                console.error('Error updating JSON:', error);
+                alert('Error updating JSON. See console for details.');
+            }
+        }
+    </script>
+</body>
+</html>

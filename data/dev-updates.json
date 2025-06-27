@@ -1,0 +1,33 @@
+[
+  {
+    "title": "The Comeback",
+    "date": "Recent Update",
+    "description": "After overcoming burnout and taking time to recharge, development has resumed with renewed passion! The game is being rebuilt from the ground up with improved dialogue, new events, and a fresh character design approach.",
+    "bulletPoints": [
+      "New events and character interactions",
+      "Complete dialogue rewrite",
+      "Improved code structure",
+      "Enhanced character visuals"
+    ],
+    "images": [],
+    "codeSnippets": [],
+    "videoLinks": [],
+    "tags": [
+      "development",
+      "updates"
+    ]
+  },
+  {
+    "title": "Art Style Evolution",
+    "date": "Previous Update",
+    "description": "Experimenting with different visual styles - maintaining anime-like aesthetics for some characters while exploring more realistic imagery for others. Community feedback is helping shape the final direction.",
+    "bulletPoints": [],
+    "images": [],
+    "codeSnippets": [],
+    "videoLinks": [],
+    "tags": [
+      "art",
+      "design"
+    ]
+  }
+]

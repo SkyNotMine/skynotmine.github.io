@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZHH7XE0WE1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-ZHH7XE0WE1');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Gainesport University - Visual Novel Game</title>
     <meta name="description" content="A weight-gain oriented visual novel currently in development. Experience the world of Gainesport University with AI-generated imagery and immersive storytelling.">
@@ -171,44 +181,11 @@
     <section id="development" class="development">
         <div class="container">
             <h2 class="section-title">Development Updates</h2>
-            <div class="timeline">
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h3>The Comeback</h3>
-                        <p class="timeline-date">Recent Update</p>
-                        <p>
-                            After overcoming burnout and taking time to recharge, development has resumed with renewed passion! 
-                            The game is being rebuilt from the ground up with improved dialogue, new events, and a fresh character design approach.
-                        </p>
-                        <ul>
-                            <li>New events and character interactions</li>
-                            <li>Complete dialogue rewrite</li>
-                            <li>Improved code structure</li>
-                            <li>Enhanced character visuals</li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h3>Art Style Evolution</h3>
-                        <p class="timeline-date">Previous Update</p>
-                        <p>
-                            Experimenting with different visual styles - maintaining anime-like aesthetics for some characters 
-                            while exploring more realistic imagery for others. Community feedback is helping shape the final direction.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-content">
-                        <h3>First Demo Release</h3>
-                        <p class="timeline-date">Initial Release</p>
-                        <p>
-                            Released the first tech demo featuring cooking mechanics, stage transitions, and foundational gameplay elements. 
-                            This served as a proof of concept for the larger vision.
-                        </p>
-                    </div>
+            <div class="timeline" id="updates-timeline">
+                <!-- Updates will be loaded dynamically from JSON -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading updates...</p>
                 </div>
             </div>
         </div>

@@ -37,6 +37,269 @@ window.addEventListener('scroll', () => {
     }
 });
 
+// Load development updates from JSON
+document.addEventListener('DOMContentLoaded', () => {
+    loadDevelopmentUpdates();
+});
+
+async function loadDevelopmentUpdates() {
+    try {
+        const response = await fetch('data/dev-updates.json');
+        if (!response.ok) {
+            throw new Error('Failed to load development updates.');
+        }
+
+        const updates = await response.json();
+        displayDevelopmentUpdates(updates);
+    } catch (error) {
+        console.error('Error loading development updates:', error);
+        const timeline = document.getElementById('updates-timeline');
+        timeline.innerHTML = '<div class="error-message"><p>Failed to load development updates.</p></div>';
+    }
+}
+
+function displayDevelopmentUpdates(updates) {
+    const timeline = document.getElementById('updates-timeline');
+    // Clear loading spinner
+    timeline.innerHTML = '';
+
+    // Create elements for each update
+    updates.forEach(update => {
+        const timelineItem = document.createElement('div');
+        timelineItem.className = 'timeline-item';
+
+        const timelineContent = document.createElement('div');
+        timelineContent.className = 'timeline-content';
+
+        // Add title
+        const title = document.createElement('h3');
+        title.textContent = update.title;
+        timelineContent.appendChild(title);
+
+        // Add date
+        const date = document.createElement('p');
+        date.className = 'timeline-date';
+        date.textContent = update.date;
+        timelineContent.appendChild(date);
+
+        // Add tags if available
+        if (update.tags && update.tags.length > 0) {
+            const tagsContainer = document.createElement('div');
+            tagsContainer.className = 'timeline-tags';
+
+            update.tags.forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'tag';
+                tagSpan.textContent = tag;
+                tagsContainer.appendChild(tagSpan);
+            });
+
+            timelineContent.appendChild(tagsContainer);
+        }
+
+        // Add description
+        const desc = document.createElement('p');
+        desc.textContent = update.description;
+        timelineContent.appendChild(desc);
+
+        // Add bullet points if available
+        if (update.bulletPoints && update.bulletPoints.length > 0) {
+            const bulletList = document.createElement('ul');
+            update.bulletPoints.forEach(point => {
+                const listItem = document.createElement('li');
+                listItem.textContent = point;
+                bulletList.appendChild(listItem);
+            });
+            timelineContent.appendChild(bulletList);
+        }
+
+        // Add images if available
+        if (update.images && update.images.length > 0) {
+            const imagesContainer = document.createElement('div');
+
+            // Single image with custom size
+            if (update.images.length === 1) {
+                imagesContainer.className = 'timeline-single-image';
+                const img = document.createElement('img');
+                img.src = update.images[0].url;
+                img.alt = update.images[0].alt || 'Update image';
+
+                // Apply custom size if provided
+                if (update.images[0].width) {
+                    img.style.width = update.images[0].width;
+                }
+                if (update.images[0].height) {
+                    img.style.height = update.images[0].height;
+                }
+
+                imagesContainer.appendChild(img);
+            }
+            // Multiple images in grid layout
+            else if (update.images.length > 1) {
+                imagesContainer.className = 'timeline-image-grid';
+                // Add class based on number of images (helps with CSS grid)
+                imagesContainer.classList.add(`grid-${Math.min(4, update.images.length)}`);
+
+                update.images.forEach(imageData => {
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.className = 'grid-image';
+
+                    const img = document.createElement('img');
+                    img.src = imageData.url;
+                    img.alt = imageData.alt || 'Update image';
+
+                    // Add click handler to open in lightbox/modal
+                    img.addEventListener('click', () => {
+                        openImageModal(imageData.url);
+                    });
+
+                    imgWrapper.appendChild(img);
+                    imagesContainer.appendChild(imgWrapper);
+                });
+            }
+
+            timelineContent.appendChild(imagesContainer);
+        }
+
+        // Add code snippets if available
+        if (update.codeSnippets && update.codeSnippets.length > 0) {
+            update.codeSnippets.forEach(snippet => {
+                const codeContainer = document.createElement('div');
+                codeContainer.className = 'timeline-code';
+
+                // Add language label if provided
+                if (snippet.language) {
+                    const langLabel = document.createElement('div');
+                    langLabel.className = 'code-language';
+                    langLabel.textContent = snippet.language;
+                    codeContainer.appendChild(langLabel);
+                }
+
+                // Code content
+                const pre = document.createElement('pre');
+                const code = document.createElement('code');
+                if (snippet.language) {
+                    code.className = `language-${snippet.language}`;
+                }
+                code.textContent = snippet.code;
+                pre.appendChild(code);
+                codeContainer.appendChild(pre);
+
+                // Copy button
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-code-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.title = 'Copy code';
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(snippet.code);
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                    }, 2000);
+                });
+                codeContainer.appendChild(copyBtn);
+
+                timelineContent.appendChild(codeContainer);
+            });
+        }
+
+        // Add video links if available
+        if (update.videoLinks && update.videoLinks.length > 0) {
+            const videosContainer = document.createElement('div');
+            videosContainer.className = 'timeline-videos';
+
+            update.videoLinks.forEach(video => {
+                // Create iframe or link based on type
+                if (video.embed) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = video.url;
+                    iframe.width = video.width || '100%';
+                    iframe.height = video.height || '315';
+                    iframe.allowFullscreen = true;
+                    iframe.loading = 'lazy';
+                    videosContainer.appendChild(iframe);
+                } else {
+                    const videoLink = document.createElement('a');
+                    videoLink.href = video.url;
+                    videoLink.className = 'video-link';
+                    videoLink.target = '_blank';
+                    videoLink.rel = 'noopener';
+                    videoLink.innerHTML = `<i class="fas fa-play-circle"></i> ${video.title || 'Watch video'}`;
+                    videosContainer.appendChild(videoLink);
+                }
+            });
+
+            timelineContent.appendChild(videosContainer);
+        }
+
+        // Add polls if available
+        if (update.poll) {
+            const pollContainer = document.createElement('div');
+            pollContainer.className = 'timeline-poll';
+
+            // Poll question
+            const pollQuestion = document.createElement('h4');
+            pollQuestion.className = 'poll-question';
+            pollQuestion.textContent = update.poll.question;
+            pollContainer.appendChild(pollQuestion);
+
+            // Poll options
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'poll-options';
+
+            update.poll.options.forEach(option => {
+                const optionButton = document.createElement('button');
+                optionButton.className = 'poll-option';
+                optionButton.textContent = option;
+                optionButton.addEventListener('click', () => {
+                    alert(`Poll voting would be implemented with a backend. You selected: ${option}`);
+                });
+                optionsContainer.appendChild(optionButton);
+            });
+
+            pollContainer.appendChild(optionsContainer);
+            timelineContent.appendChild(pollContainer);
+        }
+
+        // Add additional links if available
+        if (update.links && update.links.length > 0) {
+            const linksContainer = document.createElement('div');
+            linksContainer.className = 'timeline-links';
+
+            update.links.forEach(link => {
+                const linkElement = document.createElement('a');
+                linkElement.href = link.url;
+                linkElement.className = 'timeline-link';
+                linkElement.target = '_blank';
+                linkElement.rel = 'noopener';
+
+                // Add icon if specified
+                if (link.icon) {
+                    linkElement.innerHTML = `<i class="fas fa-${link.icon}"></i> `;
+                }
+                linkElement.innerHTML += link.text;
+
+                linksContainer.appendChild(linkElement);
+            });
+
+            timelineContent.appendChild(linksContainer);
+        }
+
+        timelineItem.appendChild(timelineContent);
+        timeline.appendChild(timelineItem);
+    });
+}
+
+// Function to open image in modal
+function openImageModal(src) {
+    const modal = document.getElementById('gallery-modal');
+    const modalImg = document.getElementById('modal-img');
+
+    modal.style.display = 'block';
+    modalImg.src = src;
+    document.body.style.overflow = 'hidden';
+}
+
 // Gallery Modal Functionality
 const modal = document.getElementById('gallery-modal');
 const modalImg = document.getElementById('modal-img');

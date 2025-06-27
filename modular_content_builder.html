@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modular Content Builder - Proof of Concept</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4338ca;
+            --secondary: #e11d48;
+            --dark-bg: #0a0a1a;
+            --light-bg: #1e1e3f;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --highlight-bg: rgba(99, 102, 241, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #6366f1, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+        }
+
+        .layout-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .sidebar {
+            flex: 0 0 350px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .builder-panel {
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            overflow: auto;
+        }
+
+        .preview-panel {
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            min-height: 500px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .component-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .component-item {
+            padding: 12px 15px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .component-item:hover {
+            background-color: var(--highlight-bg);
+        }
+
+        .component-item i {
+            color: var(--primary);
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--border);
+            color: white;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .module-container {
+            min-height: 400px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .module-placeholder {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 50px 0;
+            font-style: italic;
+        }
+
+        .module-item {
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: move;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+
+        .module-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .module-item .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .module-title {
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .module-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .module-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+
+        .module-btn.edit-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .module-btn.delete-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .module-content {
+            color: var(--text);
+        }
+
+        .drag-over {
+            background-color: var(--highlight-bg);
+            border-style: solid;
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--secondary);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Preview styles */
+        .preview-content {
+            padding: 20px;
+        }
+
+        .preview-paragraph {
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-code {
+            background: #1a1a36;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            position: relative;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .preview-code-language {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 0 6px 0 6px;
+            font-size: 12px;
+        }
+
+        .preview-list {
+            margin: 20px 0 20px 20px;
+        }
+
+        .preview-list li {
+            margin-bottom: 10px;
+        }
+
+        .preview-poll {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+
+        .preview-poll h4 {
+            margin-bottom: 15px;
+        }
+
+        .preview-poll-option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .preview-poll-option:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .json-output {
+            margin-top: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .json-output pre {
+            white-space: pre-wrap;
+            overflow-x: auto;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        .no-content {
+            text-align: center;
+            padding: 50px 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(3px);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive styles */
+        @media (max-width: 1024px) {
+            .layout-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                flex: 0 0 auto;
+            }
+        }
+
+        /* Toggle switch */
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-label {
+            font-weight: 500;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-text {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Modular Content Builder - Proof of Concept</h1>
+
+        <div class="toggle-switch">
+            <span class="toggle-label">Mode:</span>
+            <label class="switch">
+                <input type="checkbox" id="mode-toggle">
+                <span class="slider"></span>
+            </label>
+            <span class="toggle-text" id="mode-text">Builder Mode</span>
+        </div>
+
+        <div class="layout-container">
+            <div class="sidebar">
+                <h3>Content Blocks</h3>
+                <p>Drag and drop elements to build your content</p>
+                <ul class="component-list">
+                    <li class="component-item" draggable="true" data-type="paragraph">
+                        <i class="fas fa-paragraph"></i> Paragraph
+                    </li>
+                    <li class="component-item" draggable="true" data-type="image">
+                        <i class="fas fa-image"></i> Image
+                    </li>
+                    <li class="component-item" draggable="true" data-type="code">
+                        <i class="fas fa-code"></i> Code Snippet
+                    </li>
+                    <li class="component-item" draggable="true" data-type="list">
+                        <i class="fas fa-list-ul"></i> Bullet Points
+                    </li>
+                    <li class="component-item" draggable="true" data-type="poll">
+                        <i class="fas fa-poll"></i> Poll
+                    </li>
+                    <li class="component-item" draggable="true" data-type="heading">
+                        <i class="fas fa-heading"></i> Heading
+                    </li>
+                    <li class="component-item" draggable="true" data-type="video">
+                        <i class="fas fa-video"></i> Video
+                    </li>
+                    <li class="component-item" draggable="true" data-type="divider">
+                        <i class="fas fa-minus"></i> Divider
+                    </li>
+                </ul>
+
+                <div class="buttons">
+                    <button class="btn btn-primary" id="generate-json">Generate JSON</button>
+                    <button class="btn btn-danger" id="clear-all">Clear All</button>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="builder-panel">
+                    <h3>Build Your Content</h3>
+                    <div class="module-container" id="module-container">
+                        <div class="module-placeholder">Drag content blocks here to build your post</div>
+                    </div>
+                </div>
+
+                <div class="preview-panel">
+                    <h3>Preview</h3>
+                    <div class="preview-content" id="preview-content">
+                        <div class="no-content">Your content preview will appear here</div>
+                    </div>
+                </div>
+
+                <div class="json-output" id="json-output" style="display: none;">
+                    <h3>JSON Output</h3>
+                    <pre id="json-code"></pre>
+                    <div class="buttons">
+                        <button class="btn btn-secondary" id="copy-json">Copy JSON</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Edit Modal -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Content</h3>
+                <button class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-content">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-edit">Cancel</button>
+                <button class="btn btn-primary" id="save-edit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variables
+            let moduleId = 1; // Used to generate unique IDs for modules
+            let draggedElement = null;
+            let editingModuleId = null;
+            let modules = [];
+
+            // Mode toggle (builder vs. preview)
+            const modeToggle = document.getElementById('mode-toggle');
+            const modeText = document.getElementById('mode-text');
+            const builderPanel = document.querySelector('.builder-panel');
+            const previewPanel = document.querySelector('.preview-panel');
+            const sidebar = document.querySelector('.sidebar');
+
+            modeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    modeText.textContent = 'Preview Mode';
+                    builderPanel.style.display = 'none';
+                    sidebar.style.display = 'none';
+                    previewPanel.style.flex = '1';
+                    renderPreview();
+                } else {
+                    modeText.textContent = 'Builder Mode';
+                    builderPanel.style.display = 'block';
+                    sidebar.style.display = 'block';
+                    previewPanel.style.flex = '1';
+                }
+            });
+
+            // Get elements
+            const moduleContainer = document.getElementById('module-container');
+            const componentItems = document.querySelectorAll('.component-item');
+            const clearAllBtn = document.getElementById('clear-all');
+            const generateJsonBtn = document.getElementById('generate-json');
+            const copyJsonBtn = document.getElementById('copy-json');
+            const jsonOutput = document.getElementById('json-output');
+            const jsonCode = document.getElementById('json-code');
+            const previewContent = document.getElementById('preview-content');
+
+            // Modal elements
+            const editModal = document.getElementById('edit-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const cancelEditBtn = document.getElementById('cancel-edit');
+            const saveEditBtn = document.getElementById('save-edit');
+            const modalContent = document.getElementById('modal-content');
+
+            // Add drag and drop functionality to component items
+            componentItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+            });
+
+            // Add event listeners for drag and drop on module container
+            moduleContainer.addEventListener('dragover', handleDragOver);
+            moduleContainer.addEventListener('drop', handleDrop);
+            moduleContainer.addEventListener('dragenter', handleDragEnter);
+            moduleContainer.addEventListener('dragleave', handleDragLeave);
+
+            // Clear all modules
+            clearAllBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to clear all content?')) {
+                    moduleContainer.innerHTML = '<div class="module-placeholder">Drag content blocks here to build your post</div>';
+                    modules = [];
+                    renderPreview();
+                }
+            });
+
+            // Generate JSON
+            generateJsonBtn.addEventListener('click', function() {
+                const json = generateJsonOutput();
+                jsonCode.textContent = JSON.stringify(json, null, 2);
+                jsonOutput.style.display = 'block';
+                // Scroll to JSON output
+                jsonOutput.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Copy JSON
+            copyJsonBtn.addEventListener('click', function() {
+                const jsonText = jsonCode.textContent;
+                navigator.clipboard.writeText(jsonText)
+                    .then(() => {
+                        const originalText = copyJsonBtn.textContent;
+                        copyJsonBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyJsonBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy JSON. Please try again.');
+                    });
+            });
+
+            // Close modal
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelEditBtn.addEventListener('click', closeModal);
+
+            // Save edited content
+            saveEditBtn.addEventListener('click', saveEditedContent);
+
+            // Drag and drop functions
+            function handleDragStart(e) {
+                // Check if we're dragging an existing module or a new component
+                if (this.classList.contains('module-item')) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                    // Store the module's ID
+                    e.dataTransfer.setData('text/plain', this.id);
+                } else {
+                    // We're dragging a new component from the sidebar
+                    e.dataTransfer.setData('text/plain', this.dataset.type);
+                }
+            }
+
+            function handleDragOver(e) {
+                e.preventDefault(); // Allow drop
+                e.dataTransfer.dropEffect = 'move';
+            }
+
+            function handleDragEnter(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            }
+
+            function handleDragLeave(e) {
+                this.classList.remove('drag-over');
+            }
+
+            function handleDrop(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+
+                const data = e.dataTransfer.getData('text/plain');
+
+                // Check if we're dropping a new component or reordering an existing module
+                if (data.includes('module-')) {
+                    // Reordering existing module
+                    if (draggedElement) {
+                        // Get the module we're dropping onto or near
+                        let target = e.target;
+                        // Find the nearest module item
+                        while (target && !target.classList.contains('module-item') && target !== moduleContainer) {
+                            target = target.parentElement;
+                        }
+
+                        if (target === moduleContainer) {
+                            // Dropping at the end
+                            moduleContainer.appendChild(draggedElement);
+                        } else if (target.classList.contains('module-item')) {
+                            // Get the drop position (before or after the target)
+                            const rect = target.getBoundingClientRect();
+                            const mouseY = e.clientY;
+                            const threshold = rect.top + (rect.height / 2);
+
+                            if (mouseY < threshold) {
+                                // Insert before target
+                                moduleContainer.insertBefore(draggedElement, target);
+                            } else {
+                                // Insert after target
+                                moduleContainer.insertBefore(draggedElement, target.nextSibling);
+                            }
+                        }
+
+                        draggedElement.classList.remove('dragging');
+                        draggedElement = null;
+
+                        // Update modules array to match the new DOM order
+                        updateModulesOrder();
+                        renderPreview();
+                    }
+                } else {
+                    // Create a new module from the component
+                    createNewModule(data);
+
+                    // Remove placeholder if it exists
+                    const placeholder = moduleContainer.querySelector('.module-placeholder');
+                    if (placeholder) {
+                        moduleContainer.removeChild(placeholder);
+                    }
+                }
+            }
+
+            // Make the modules themselves draggable for reordering
+            function makeModuleDraggable(moduleElement) {
+                moduleElement.setAttribute('draggable', true);
+                moduleElement.addEventListener('dragstart', handleDragStart);
+                moduleElement.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                });
+            }
+
+            // Create a new module based on the component type
+            function createNewModule(type) {
+                const id = `module-${moduleId++}`;
+                const moduleItem = document.createElement('div');
+                moduleItem.className = 'module-item';
+                moduleItem.id = id;
+
+                // Create default module data
+                let moduleData = { type };
+
+                // Set up module UI based on type
+                switch(type) {
+                    case 'paragraph':
+                        moduleData.content = 'This is a sample paragraph. Edit to add your content.';
+                        break;
+                    case 'image':
+                        moduleData.url = 'https://via.placeholder.com/800x400';
+                        moduleData.alt = 'Sample image';
+                        moduleData.width = '100%';
+                        break;
+                    case 'code':
+                        moduleData.language = 'javascript';
+                        moduleData.content = '// Sample code\nconsole.log("Hello, world!");';
+                        break;
+                    case 'list':
+                        moduleData.items = [
+                            'First bullet point',
+                            'Second bullet point',
+                            'Third bullet point'
+                        ];
+                        break;
+                    case 'poll':
+                        moduleData.question = 'Sample poll question?';
+                        moduleData.options = [
+                            'Option 1',
+                            'Option 2',
+                            'Option 3'
+                        ];
+                        break;
+                    case 'heading':
+                        moduleData.content = 'Sample Heading';
+                        moduleData.level = 2;
+                        break;
+                    case 'video':
+                        moduleData.url = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+                        moduleData.title = 'Sample Video';
+                        moduleData.embed = true;
+                        break;
+                    case 'divider':
+                        moduleData.style = 'solid';
+                        break;
+                }
+
+                // Add the module to our array
+                modules.push({
+                    id,
+                    ...moduleData
+                });
+
+                // Update the UI
+                updateModuleUI(moduleItem, moduleData);
+
+                // Make the module draggable
+                makeModuleDraggable(moduleItem);
+
+                // Add edit and delete buttons
+                const moduleHeader = document.createElement('div');
+                moduleHeader.className = 'module-header';
+
+                const moduleTitle = document.createElement('div');
+                moduleTitle.className = 'module-title';
+
+                // Set icon and title based on type
+                let icon, title;
+                switch(type) {
+                    case 'paragraph':
+                        icon = 'paragraph';
+                        title = 'Paragraph';
+                        break;
+                    case 'image':
+                        icon = 'image';
+                        title = 'Image';
+                        break;
+                    case 'code':
+                        icon = 'code';
+                        title = 'Code Snippet';
+                        break;
+                    case 'list':
+                        icon = 'list-ul';
+                        title = 'Bullet Points';
+                        break;
+                    case 'poll':
+                        icon = 'poll';
+                        title = 'Poll';
+                        break;
+                    case 'heading':
+                        icon = 'heading';
+                        title = 'Heading';
+                        break;
+                    case 'video':
+                        icon = 'video';
+                        title = 'Video';
+                        break;
+                    case 'divider':
+                        icon = 'minus';
+                        title = 'Divider';
+                        break;
+                }
+
+                moduleTitle.innerHTML = `<i class="fas fa-${icon}"></i> ${title}`;
+
+                const moduleActions = document.createElement('div');
+                moduleActions.className = 'module-actions';
+
+                const editBtn = document.createElement('button');
+                editBtn.className = 'module-btn edit-btn';
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.title = 'Edit';
+                editBtn.addEventListener('click', function() {
+                    openEditModal(id);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'module-btn delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'Delete';
+                deleteBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to delete this module?')) {
+                        moduleContainer.removeChild(moduleItem);
+                        modules = modules.filter(m => m.id !== id);
+
+                        // Add placeholder if no modules left
+                        if (modules.length === 0) {
+                            moduleContainer.innerHTML = '<div class="module-placeholder">Drag content blocks here to build your post</div>';
+                        }
+
+                        renderPreview();
+                    }
+                });
+
+                moduleActions.appendChild(editBtn);
+                moduleActions.appendChild(deleteBtn);
+
+                moduleHeader.appendChild(moduleTitle);
+                moduleHeader.appendChild(moduleActions);
+
+                // Create module content
+                const moduleContent = document.createElement('div');
+                moduleContent.className = 'module-content';
+
+                // Render content preview based on type
+                moduleContent.innerHTML = getContentPreview(moduleData);
+
+                // Assemble the module
+                moduleItem.appendChild(moduleHeader);
+                moduleItem.appendChild(moduleContent);
+
+                // Add to container
+                moduleContainer.appendChild(moduleItem);
+
+                // Update preview
+                renderPreview();
+            }
+
+            // Generate a preview of the module content
+            function getContentPreview(moduleData) {
+                let preview = '';
+
+                switch(moduleData.type) {
+                    case 'paragraph':
+                        preview = moduleData.content.substring(0, 100) +
+                            (moduleData.content.length > 100 ? '...' : '');
+                        break;
+                    case 'image':
+                        preview = `<img src="${moduleData.url}" alt="${moduleData.alt}" style="max-width: 100%; max-height: 150px; object-fit: cover;">`;
+                        break;
+                    case 'code':
+                        preview = `<pre style="max-height: 100px; overflow: hidden;">${moduleData.content.substring(0, 100)}</pre>`;
+                        break;
+                    case 'list':
+                        preview = '<ul style="margin-left: 20px;">' +
+                            moduleData.items.slice(0, 3).map(item => `<li>${item}</li>`).join('') +
+                            (moduleData.items.length > 3 ? '<li>...</li>' : '') +
+                            '</ul>';
+                        break;
+                    case 'poll':
+                        preview = `<div><strong>${moduleData.question}</strong><br>` +
+                            moduleData.options.slice(0, 2).map(option => `- ${option}`).join('<br>') +
+                            (moduleData.options.length > 2 ? '<br>- ...' : '') +
+                            '</div>';
+                        break;
+                    case 'heading':
+                        preview = `<strong style="font-size: ${18 - moduleData.level * 2}px;">${moduleData.content}</strong>`;
+                        break;
+                    case 'video':
+                        if (moduleData.embed) {
+                            preview = '<div style="background: #000; color: #fff; padding: 10px; text-align: center;">[Video Embed]</div>';
+                        } else {
+                            preview = `<a href="${moduleData.url}" target="_blank" style="color: var(--primary);"><i class="fas fa-play-circle"></i> ${moduleData.title}</a>`;
+                        }
+                        break;
+                    case 'divider':
+                        preview = '<hr style="border: none; border-top: 1px solid var(--border);">';
+                        break;
+                }
+
+                return preview;
+            }
+
+            // Update module UI
+            function updateModuleUI(moduleElement, moduleData) {
+                const moduleContent = moduleElement.querySelector('.module-content') || document.createElement('div');
+
+                if (!moduleElement.querySelector('.module-content')) {
+                    moduleContent.className = 'module-content';
+                    moduleElement.appendChild(moduleContent);
+                }
+
+                moduleContent.innerHTML = getContentPreview(moduleData);
+            }
+
+            // Update the modules array to match the new DOM order
+            function updateModulesOrder() {
+                const moduleElements = moduleContainer.querySelectorAll('.module-item');
+                const newModules = [];
+
+                moduleElements.forEach(element => {
+                    const moduleId = element.id;
+                    const module = modules.find(m => m.id === moduleId);
+                    if (module) {
+                        newModules.push(module);
+                    }
+                });
+
+                modules = newModules;
+            }
+
+            // Open the edit modal for a module
+            function openEditModal(moduleId) {
+                editingModuleId = moduleId;
+                const module = modules.find(m => m.id === moduleId);
+
+                if (!module) return;
+
+                // Clear previous modal content
+                modalContent.innerHTML = '';
+
+                // Create form based on module type
+                switch(module.type) {
+                    case 'paragraph':
+                        createParagraphForm(module);
+                        break;
+                    case 'image':
+                        createImageForm(module);
+                        break;
+                    case 'code':
+                        createCodeForm(module);
+                        break;
+                    case 'list':
+                        createListForm(module);
+                        break;
+                    case 'poll':
+                        createPollForm(module);
+                        break;
+                    case 'heading':
+                        createHeadingForm(module);
+                        break;
+                    case 'video':
+                        createVideoForm(module);
+                        break;
+                    case 'divider':
+                        createDividerForm(module);
+                        break;
+                }
+
+                // Show modal
+                editModal.classList.add('active');
+            }
+
+            // Close the edit modal
+            function closeModal() {
+                editModal.classList.remove('active');
+                editingModuleId = null;
+            }
+
+            // Save the edited content
+            function saveEditedContent() {
+                if (!editingModuleId) return;
+
+                const module = modules.find(m => m.id === editingModuleId);
+                if (!module) return;
+
+                // Get the form data based on module type
+                switch(module.type) {
+                    case 'paragraph':
+                        module.content = document.getElementById('paragraph-content').value;
+                        break;
+                    case 'image':
+                        module.url = document.getElementById('image-url').value;
+                        module.alt = document.getElementById('image-alt').value;
+                        module.width = document.getElementById('image-width').value;
+                        module.height = document.getElementById('image-height').value;
+                        break;
+                    case 'code':
+                        module.language = document.getElementById('code-language').value;
+                        module.content = document.getElementById('code-content').value;
+                        break;
+                    case 'list':
+                        const items = [];
+                        document.querySelectorAll('.list-item-input').forEach(input => {
+                            if (input.value.trim()) {
+                                items.push(input.value.trim());
+                            }
+                        });
+                        module.items = items;
+                        break;
+                    case 'poll':
+                        module.question = document.getElementById('poll-question').value;
+                        const options = [];
+                        document.querySelectorAll('.poll-option-input').forEach(input => {
+                            if (input.value.trim()) {
+                                options.push(input.value.trim());
+                            }
+                        });
+                        module.options = options;
+                        break;
+                    case 'heading':
+                        module.content = document.getElementById('heading-content').value;
+                        module.level = parseInt(document.getElementById('heading-level').value);
+                        break;
+                    case 'video':
+                        module.url = document.getElementById('video-url').value;
+                        module.title = document.getElementById('video-title').value;
+                        module.embed = document.getElementById('video-embed').checked;
+                        if (module.embed) {
+                            module.width = document.getElementById('video-width').value;
+                            module.height = document.getElementById('video-height').value;
+                        }
+                        break;
+                    case 'divider':
+                        module.style = document.getElementById('divider-style').value;
+                        break;
+                }
+
+                // Update the UI
+                const moduleElement = document.getElementById(editingModuleId);
+                updateModuleUI(moduleElement, module);
+
+                // Close modal
+                closeModal();
+
+                // Update preview
+                renderPreview();
+            }
+
+            // Form creation functions
+            function createParagraphForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="paragraph-content">Paragraph Text</label>
+                        <textarea id="paragraph-content" rows="10">${module.content || ''}</textarea>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+            }
+
+            function createImageForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="image-url">Image URL</label>
+                        <input type="url" id="image-url" value="${module.url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-alt">Alt Text</label>
+                        <input type="text" id="image-alt" value="${module.alt || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-width">Width (e.g. 100%, 500px)</label>
+                        <input type="text" id="image-width" value="${module.width || '100%'}">
+                    </div>
+                    <div class="form-group">
+                        <label for="image-height">Height (optional)</label>
+                        <input type="text" id="image-height" value="${module.height || ''}">
+                    </div>
+                    <div class="preview-image">
+                        <label>Preview</label>
+                        <img src="${module.url || ''}" alt="${module.alt || ''}" style="max-width: 100%; margin-top: 10px; display: ${module.url ? 'block' : 'none'}">
+                    </div>
+                `;
+                modalContent.appendChild(form);
+
+                // Add live preview
+                const urlInput = document.getElementById('image-url');
+                const preview = modalContent.querySelector('.preview-image img');
+                urlInput.addEventListener('blur', function() {
+                    preview.src = this.value;
+                    preview.style.display = this.value ? 'block' : 'none';
+                });
+            }
+
+            function createCodeForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="code-language">Language</label>
+                        <input type="text" id="code-language" value="${module.language || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="code-content">Code</label>
+                        <textarea id="code-content" rows="10">${module.content || ''}</textarea>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+            }
+
+            function createListForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label>Bullet Points</label>
+                        <div id="list-items-container">
+                            ${module.items.map((item, i) => `
+                                <div class="input-group" style="margin-bottom: 10px;">
+                                    <input type="text" class="list-item-input" value="${item}" placeholder="Item ${i+1}">
+                                    <button type="button" class="module-btn delete-btn remove-item">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button type="button" id="add-list-item" class="btn btn-secondary" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+
+                // Add event listeners
+                document.getElementById('add-list-item').addEventListener('click', function() {
+                    const container = document.getElementById('list-items-container');
+                    const index = container.children.length + 1;
+                    const itemGroup = document.createElement('div');
+                    itemGroup.className = 'input-group';
+                    itemGroup.style.marginBottom = '10px';
+                    itemGroup.innerHTML = `
+                        <input type="text" class="list-item-input" placeholder="Item ${index}">
+                        <button type="button" class="module-btn delete-btn remove-item">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    container.appendChild(itemGroup);
+
+                    // Add remove listener
+                    itemGroup.querySelector('.remove-item').addEventListener('click', function() {
+                        container.removeChild(itemGroup);
+                    });
+                });
+
+                // Add remove listeners to existing items
+                document.querySelectorAll('.remove-item').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const container = document.getElementById('list-items-container');
+                        const itemGroup = this.closest('.input-group');
+                        container.removeChild(itemGroup);
+                    });
+                });
+            }
+
+            function createPollForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="poll-question">Poll Question</label>
+                        <input type="text" id="poll-question" value="${module.question || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Poll Options</label>
+                        <div id="poll-options-container">
+                            ${module.options.map((option, i) => `
+                                <div class="input-group" style="margin-bottom: 10px;">
+                                    <input type="text" class="poll-option-input" value="${option}" placeholder="Option ${i+1}">
+                                    <button type="button" class="module-btn delete-btn remove-option">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button type="button" id="add-poll-option" class="btn btn-secondary" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> Add Option
+                        </button>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+
+                // Add event listeners
+                document.getElementById('add-poll-option').addEventListener('click', function() {
+                    const container = document.getElementById('poll-options-container');
+                    const index = container.children.length + 1;
+                    const optionGroup = document.createElement('div');
+                    optionGroup.className = 'input-group';
+                    optionGroup.style.marginBottom = '10px';
+                    optionGroup.innerHTML = `
+                        <input type="text" class="poll-option-input" placeholder="Option ${index}">
+                        <button type="button" class="module-btn delete-btn remove-option">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    container.appendChild(optionGroup);
+
+                    // Add remove listener
+                    optionGroup.querySelector('.remove-option').addEventListener('click', function() {
+                        container.removeChild(optionGroup);
+                    });
+                });
+
+                // Add remove listeners to existing options
+                document.querySelectorAll('.remove-option').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const container = document.getElementById('poll-options-container');
+                        const optionGroup = this.closest('.input-group');
+                        container.removeChild(optionGroup);
+                    });
+                });
+            }
+
+            function createHeadingForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="heading-content">Heading Text</label>
+                        <input type="text" id="heading-content" value="${module.content || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="heading-level">Heading Level</label>
+                        <select id="heading-level">
+                            <option value="1" ${module.level === 1 ? 'selected' : ''}>H1 - Main Heading</option>
+                            <option value="2" ${module.level === 2 ? 'selected' : ''}>H2 - Section Heading</option>
+                            <option value="3" ${module.level === 3 ? 'selected' : ''}>H3 - Subsection Heading</option>
+                            <option value="4" ${module.level === 4 ? 'selected' : ''}>H4 - Minor Heading</option>
+                        </select>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+            }
+
+            function createVideoForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="video-url">Video URL</label>
+                        <input type="url" id="video-url" value="${module.url || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label for="video-title">Video Title</label>
+                        <input type="text" id="video-title" value="${module.title || ''}">
+                    </div>
+                    <div class="form-group">
+                        <div class="toggle-switch">
+                            <label for="video-embed" class="toggle-label">Embed Video</label>
+                            <label class="switch">
+                                <input type="checkbox" id="video-embed" ${module.embed ? 'checked' : ''}>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="embed-options" style="display: ${module.embed ? 'block' : 'none'}">
+                        <div class="form-group">
+                            <label for="video-width">Width (e.g. 100%, 560px)</label>
+                            <input type="text" id="video-width" value="${module.width || '100%'}">
+                        </div>
+                        <div class="form-group">
+                            <label for="video-height">Height</label>
+                            <input type="text" id="video-height" value="${module.height || '315px'}">
+                        </div>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+
+                // Toggle embed options
+                document.getElementById('video-embed').addEventListener('change', function() {
+                    document.getElementById('embed-options').style.display = this.checked ? 'block' : 'none';
+                });
+            }
+
+            function createDividerForm(module) {
+                const form = document.createElement('div');
+                form.innerHTML = `
+                    <div class="form-group">
+                        <label for="divider-style">Divider Style</label>
+                        <select id="divider-style">
+                            <option value="solid" ${module.style === 'solid' ? 'selected' : ''}>Solid Line</option>
+                            <option value="dashed" ${module.style === 'dashed' ? 'selected' : ''}>Dashed Line</option>
+                            <option value="dotted" ${module.style === 'dotted' ? 'selected' : ''}>Dotted Line</option>
+                            <option value="double" ${module.style === 'double' ? 'selected' : ''}>Double Line</option>
+                        </select>
+                    </div>
+                `;
+                modalContent.appendChild(form);
+            }
+
+            // Generate JSON output
+            function generateJsonOutput() {
+                const output = {
+                    title: "Modular Content",
+                    date: new Date().toISOString().split('T')[0],
+                    content: []
+                };
+
+                modules.forEach(module => {
+                    // Create a clean copy without the id
+                    const { id, ...moduleData } = module;
+                    output.content.push(moduleData);
+                });
+
+                return output;
+            }
+
+            // Render the preview
+            function renderPreview() {
+                if (modules.length === 0) {
+                    previewContent.innerHTML = '<div class="no-content">Your content preview will appear here</div>';
+                    return;
+                }
+
+                previewContent.innerHTML = '';
+
+                modules.forEach(module => {
+                    switch(module.type) {
+                        case 'paragraph':
+                            const p = document.createElement('p');
+                            p.className = 'preview-paragraph';
+                            p.textContent = module.content;
+                            previewContent.appendChild(p);
+                            break;
+                        case 'image':
+                            const img = document.createElement('img');
+                            img.src = module.url;
+                            img.alt = module.alt;
+                            img.className = 'preview-image';
+                            if (module.width) img.style.width = module.width;
+                            if (module.height) img.style.height = module.height;
+                            previewContent.appendChild(img);
+                            break;
+                        case 'code':
+                            const codeBlock = document.createElement('div');
+                            codeBlock.className = 'preview-code';
+
+                            if (module.language) {
+                                const langLabel = document.createElement('div');
+                                langLabel.className = 'preview-code-language';
+                                langLabel.textContent = module.language;
+                                codeBlock.appendChild(langLabel);
+                            }
+
+                            const pre = document.createElement('pre');
+                            pre.textContent = module.content;
+                            codeBlock.appendChild(pre);
+
+                            previewContent.appendChild(codeBlock);
+                            break;
+                        case 'list':
+                            const list = document.createElement('ul');
+                            list.className = 'preview-list';
+
+                            module.items.forEach(item => {
+                                const li = document.createElement('li');
+                                li.textContent = item;
+                                list.appendChild(li);
+                            });
+
+                            previewContent.appendChild(list);
+                            break;
+                        case 'poll':
+                            const poll = document.createElement('div');
+                            poll.className = 'preview-poll';
+
+                            const question = document.createElement('h4');
+                            question.textContent = module.question;
+                            poll.appendChild(question);
+
+                            module.options.forEach(option => {
+                                const optionEl = document.createElement('div');
+                                optionEl.className = 'preview-poll-option';
+                                optionEl.textContent = option;
+                                poll.appendChild(optionEl);
+                            });
+
+                            previewContent.appendChild(poll);
+                            break;
+                        case 'heading':
+                            const heading = document.createElement(`h${module.level}`);
+                            heading.textContent = module.content;
+                            heading.style.margin = '20px 0';
+                            previewContent.appendChild(heading);
+                            break;
+                        case 'video':
+                            const videoContainer = document.createElement('div');
+                            videoContainer.style.margin = '20px 0';
+
+                            if (module.embed) {
+                                const iframe = document.createElement('iframe');
+                                iframe.src = module.url;
+                                iframe.width = module.width || '100%';
+                                iframe.height = module.height || '315px';
+                                iframe.frameBorder = '0';
+                                iframe.allowFullscreen = true;
+                                videoContainer.appendChild(iframe);
+                            } else {
+                                const link = document.createElement('a');
+                                link.href = module.url;
+                                link.target = '_blank';
+                                link.className = 'video-link';
+                                link.innerHTML = `<i class="fas fa-play-circle"></i> ${module.title || 'Watch Video'}`;
+                                videoContainer.appendChild(link);
+                            }
+
+                            previewContent.appendChild(videoContainer);
+                            break;
+                        case 'divider':
+                            const hr = document.createElement('hr');
+                            hr.style.borderStyle = module.style || 'solid';
+                            hr.style.margin = '20px 0';
+                            previewContent.appendChild(hr);
+                            break;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+

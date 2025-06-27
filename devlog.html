@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZHH7XE0WE1"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-ZHH7XE0WE1');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Development Log - Gainesport University</title>
+    <meta name="description" content="Follow the development journey of Gainesport University, a weight-gain oriented visual novel with AI-generated imagery and immersive storytelling.">
+    <meta name="keywords" content="devlog, development log, visual novel, weight gain, ren'py, indie game, gainesport university">
+    <meta name="author" content="SkyNotMine">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="Development Log - Gainesport University">
+    <meta property="og:description" content="Follow the development journey of Gainesport University visual novel with detailed updates and behind-the-scenes insights.">
+    <meta property="og:image" content="https://skynotmine.github.io/img/promo-cover-630x500.png">
+    <meta property="og:url" content="https://skynotmine.github.io/devlog.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Gainesport University">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Development Log - Gainesport University">
+    <meta name="twitter:description" content="Follow the development journey of Gainesport University visual novel with detailed updates and behind-the-scenes insights.">
+    <meta name="twitter:image" content="https://skynotmine.github.io/img/promo-cover-630x500.png">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://skynotmine.github.io/devlog.html">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="img/promo-cover-630x500.png">
+
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* Custom Styles for Devlog Page */
+        .devlog-header {
+            position: relative;
+            height: 50vh;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: var(--gradient-surface);
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .devlog-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.15) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .devlog-header-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            padding: 0 2rem;
+        }
+
+        .devlog-title {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+
+        .devlog-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .devlog-search {
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+
+        .devlog-search input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .devlog-search input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .devlog-search button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .devlog-filter {
+            margin: 2rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .devlog-main {
+            padding: 4rem 0;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--primary-color), var(--accent-color));
+            top: 0;
+            bottom: 0;
+            left: 2rem;
+            margin-left: -2px;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-left: 2rem;
+            padding: 2rem 0;
+            background: transparent;
+            border-left: none;
+            transform-origin: left center;
+            transition: all 0.5s;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            left: -2.5rem;
+            background-color: var(--background-dark);
+            border: 4px solid var(--primary-color);
+            top: 2rem;
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s;
+        }
+
+        .timeline-item:hover::before {
+            transform: scale(1.2);
+            background-color: var(--primary-color);
+        }
+
+        .timeline-content {
+            position: relative;
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--surface-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline-content::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            left: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        .timeline-content:hover::after {
+            width: 100%;
+        }
+
+        .timeline-date {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 0.25rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .timeline-content:hover .timeline-date {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .timeline-tags {
+            margin-bottom: 1rem;
+        }
+
+        .expand-btn {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--primary-color);
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .expand-btn i {
+            transition: transform 0.3s;
+        }
+
+        .timeline-expanded .expand-btn i {
+            transform: rotate(180deg);
+        }
+
+        .timeline-expanded .timeline-expandable {
+            max-height: 2000px;
+            opacity: 1;
+        }
+
+        .timeline-expandable {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        /* Paging controls */
+        .paging-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+            gap: 0.5rem;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .page-nav {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            padding: 0 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-nav:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .page-nav.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Interactive particles */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            display: block;
+            pointer-events: none;
+            width: 5px;
+            height: 5px;
+            background-color: rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .loading-spinner i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-hover);
+            transform: translateY(-5px);
+        }
+
+        /* Responsive styles */
+        @media (min-width: 768px) {
+            .timeline::before {
+                left: 50%;
+            }
+
+            .timeline-item {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .timeline-item:nth-child(odd) {
+                padding-right: calc(50% + 2rem);
+            }
+
+            .timeline-item:nth-child(even) {
+                padding-left: calc(50% + 2rem);
+            }
+
+            .timeline-item:nth-child(odd)::before {
+                left: calc(50% - 10px);
+            }
+
+            .timeline-item:nth-child(even)::before {
+                left: calc(50% - 10px);
+            }
+
+            .timeline-item:nth-child(odd) .timeline-content::before {
+                content: '';
+                position: absolute;
+                right: -20px;
+                top: 2rem;
+                border-width: 10px;
+                border-style: solid;
+                border-color: transparent transparent transparent var(--surface-color);
+            }
+
+            .timeline-item:nth-child(even) .timeline-content::before {
+                content: '';
+                position: absolute;
+                left: -20px;
+                top: 2rem;
+                border-width: 10px;
+                border-style: solid;
+                border-color: transparent var(--surface-color) transparent transparent;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .devlog-title {
+                font-size: 2rem;
+            }
+
+            .devlog-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .timeline::before {
+                left: 1rem;
+            }
+
+            .timeline-item {
+                margin-left: 1rem;
+            }
+
+            .timeline-item::before {
+                left: -1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>Gainesport University</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#about" class="nav-link">About</a></li>
+                <li><a href="index.html#gallery" class="nav-link">Gallery</a></li>
+                <li><a href="devlog.html" class="nav-link active">Devlog</a></li>
+                <li><a href="index.html#support" class="nav-link">Support</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Devlog Header -->
+    <header class="devlog-header">
+        <div class="particles-container" id="particles"></div>
+        <div class="devlog-header-content">
+            <h1 class="devlog-title">Development Log</h1>
+            <p class="devlog-subtitle">Follow the journey of Gainesport University's creation and development</p>
+
+            <div class="devlog-search">
+                <input type="text" id="search-input" placeholder="Search development updates...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <section class="devlog-main">
+        <div class="container">
+            <div class="devlog-filter">
+                <button class="filter-btn active" data-tag="all">All Updates</button>
+                <button class="filter-btn" data-tag="development">Development</button>
+                <button class="filter-btn" data-tag="art">Art & Design</button>
+                <button class="filter-btn" data-tag="features">Features</button>
+                <button class="filter-btn" data-tag="story">Story</button>
+                <button class="filter-btn" data-tag="characters">Characters</button>
+            </div>
+
+            <div class="timeline" id="devlog-timeline">
+                <!-- Content will be loaded dynamically from JSON -->
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading development updates...</p>
+                </div>
+            </div>
+
+            <div class="paging-controls">
+                <button class="page-nav disabled" id="prev-page">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <div id="page-numbers">
+                    <button class="page-btn active">1</button>
+                </div>
+                <button class="page-nav disabled" id="next-page">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to top button -->
+    <div class="back-to-top" id="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h3>Gainesport University</h3>
+                    <p>Created by SkyNotMine</p>
+                </div>
+                <div class="footer-links">
+                    <a href="https://skynotmine.itch.io/gainesport-university" target="_blank" class="footer-link">
+                        <i class="fab fa-itch-io"></i> Itch.io
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 SkyNotMine. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Navigation Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+
+            hamburger?.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navMenu.classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking on a link
+            document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }));
+
+            // Navbar background on scroll
+            window.addEventListener('scroll', () => {
+                const navbar = document.querySelector('.navbar');
+                if (window.scrollY > 100) {
+                    navbar.style.background = 'rgba(10, 10, 26, 0.98)';
+                } else {
+                    navbar.style.background = 'rgba(10, 10, 26, 0.95)';
+                }
+            });
+
+            // Back to top button
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Interactive particles
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                createParticle();
+            }
+
+            function createParticle() {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                // Random position
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.left = `${Math.random() * 100}%`;
+
+                // Random size
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.5 + 0.3;
+
+                // Add to container
+                particlesContainer.appendChild(particle);
+
+                // Add animation
+                animateParticle(particle);
+            }
+
+            function animateParticle(particle) {
+                const duration = Math.random() * 15000 + 10000; // 10-25 seconds
+                const xDistance = (Math.random() - 0.5) * 100;
+                const yDistance = (Math.random() - 0.5) * 50;
+
+                particle.animate([
+                    { transform: 'translate(0, 0)' },
+                    { transform: `translate(${xDistance}px, ${yDistance}px)` }
+                ], {
+                    duration: duration,
+                    easing: 'ease-in-out',
+                    iterations: Infinity,
+                    direction: 'alternate'
+                });
+
+                // Pulsate size
+                particle.animate([
+                    { opacity: particle.style.opacity, transform: 'scale(1)' },
+                    { opacity: particle.style.opacity * 0.5, transform: 'scale(1.5)' },
+                    { opacity: particle.style.opacity, transform: 'scale(1)' }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    iterations: Infinity,
+                    easing: 'ease-in-out'
+                });
+            }
+
+            // Initialize the devlog
+            loadDevlogEntries();
+        });
+
+        // Variables for pagination
+        let currentPage = 1;
+        let totalPages = 1;
+        const entriesPerPage = 5;
+        let allEntries = [];
+        let filteredEntries = [];
+        let activeTag = 'all';
+
+        // Load development entries from JSON
+        async function loadDevlogEntries() {
+            try {
+                const response = await fetch('data/dev-updates.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load development updates.');
+                }
+
+                allEntries = await response.json();
+                filteredEntries = [...allEntries];
+                totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
+
+                // Initial render
+                renderPageNumbers();
+                renderDevlogEntries();
+
+                // Initialize search
+                initializeSearch();
+
+                // Initialize filters
+                initializeFilters();
+            } catch (error) {
+                console.error('Error loading development updates:', error);
+                const timeline = document.getElementById('devlog-timeline');
+                timeline.innerHTML = '<div class="error-message"><p>Failed to load development updates.</p></div>';
+            }
+        }
+
+        function renderDevlogEntries() {
+            const timeline = document.getElementById('devlog-timeline');
+            timeline.innerHTML = '';
+
+            // Calculate entries for current page
+            const start = (currentPage - 1) * entriesPerPage;
+            const end = start + entriesPerPage;
+            const pageEntries = filteredEntries.slice(start, end);
+
+            if (pageEntries.length === 0) {
+                timeline.innerHTML = '<div class="no-results"><p>No development updates found matching your criteria.</p></div>';
+                return;
+            }
+
+            // Create elements for each update
+            pageEntries.forEach(entry => {
+                const timelineItem = document.createElement('div');
+                timelineItem.className = 'timeline-item';
+
+                // Build tags HTML
+                let tagsHtml = '';
+                if (entry.tags && entry.tags.length > 0) {
+                    tagsHtml = `
+                        <div class="timeline-tags">
+                            ${entry.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    `;
+                }
+
+                // Build bullet points HTML
+                let bulletPointsHtml = '';
+                if (entry.bulletPoints && entry.bulletPoints.length > 0) {
+                    bulletPointsHtml = `
+                        <ul>
+                            ${entry.bulletPoints.map(point => `<li>${point}</li>`).join('')}
+                        </ul>
+                    `;
+                }
+
+                // Decide which content goes in the expandable section
+                const hasExpandableContent =
+                    (entry.images && entry.images.length > 0) ||
+                    (entry.codeSnippets && entry.codeSnippets.length > 0) ||
+                    (entry.videoLinks && entry.videoLinks.length > 0) ||
+                    entry.poll ||
+                    (entry.links && entry.links.length > 0);
+
+                // Build the HTML
+                timelineItem.innerHTML = `
+                    <div class="timeline-content">
+                        <span class="timeline-date">${entry.date}</span>
+                        <h3>${entry.title}</h3>
+                        ${tagsHtml}
+                        <p>${entry.description}</p>
+                        ${bulletPointsHtml}
+
+                        ${hasExpandableContent ? `
+                            <button class="expand-btn">
+                                See more <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="timeline-expandable">
+                                <!-- Expandable content will be added here -->
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                timeline.appendChild(timelineItem);
+
+                // Add expandable content if needed
+                if (hasExpandableContent) {
+                    const expandableContent = timelineItem.querySelector('.timeline-expandable');
+
+                    // Add images if available
+                    if (entry.images && entry.images.length > 0) {
+                        addImagesToExpandableContent(expandableContent, entry.images);
+                    }
+
+                    // Add code snippets if available
+                    if (entry.codeSnippets && entry.codeSnippets.length > 0) {
+                        addCodeSnippetsToExpandableContent(expandableContent, entry.codeSnippets);
+                    }
+
+                    // Add videos if available
+                    if (entry.videoLinks && entry.videoLinks.length > 0) {
+                        addVideosToExpandableContent(expandableContent, entry.videoLinks);
+                    }
+
+                    // Add poll if available
+                    if (entry.poll) {
+                        addPollToExpandableContent(expandableContent, entry.poll);
+                    }
+
+                    // Add links if available
+                    if (entry.links && entry.links.length > 0) {
+                        addLinksToExpandableContent(expandableContent, entry.links);
+                    }
+
+                    // Add event listener to expand button
+                    const expandBtn = timelineItem.querySelector('.expand-btn');
+                    expandBtn.addEventListener('click', () => {
+                        const content = expandBtn.closest('.timeline-content');
+                        content.classList.toggle('timeline-expanded');
+                    });
+                }
+            });
+
+            // Update pagination buttons
+            updatePaginationButtons();
+        }
+
+        function addImagesToExpandableContent(container, images) {
+            const imagesContainer = document.createElement('div');
+
+            // Single image with custom size
+            if (images.length === 1) {
+                imagesContainer.className = 'timeline-single-image';
+                const img = document.createElement('img');
+                img.src = images[0].url;
+                img.alt = images[0].alt || 'Update image';
+
+                // Apply custom size if provided
+                if (images[0].width) {
+                    img.style.width = images[0].width;
+                }
+                if (images[0].height) {
+                    img.style.height = images[0].height;
+                }
+
+                imagesContainer.appendChild(img);
+
+                // Add lightbox functionality
+                img.addEventListener('click', () => {
+                    openImageModal(images[0].url);
+                });
+            }
+            // Multiple images in grid layout
+            else if (images.length > 1) {
+                imagesContainer.className = 'timeline-image-grid';
+                // Add class based on number of images (helps with CSS grid)
+                imagesContainer.classList.add(`grid-${Math.min(4, images.length)}`);
+
+                images.forEach(imageData => {
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.className = 'grid-image';
+
+                    const img = document.createElement('img');
+                    img.src = imageData.url;
+                    img.alt = imageData.alt || 'Update image';
+
+                    // Add click handler to open in lightbox/modal
+                    img.addEventListener('click', () => {
+                        openImageModal(imageData.url);
+                    });
+
+                    imgWrapper.appendChild(img);
+                    imagesContainer.appendChild(imgWrapper);
+                });
+            }
+
+            container.appendChild(imagesContainer);
+        }
+
+        function addCodeSnippetsToExpandableContent(container, codeSnippets) {
+            codeSnippets.forEach(snippet => {
+                const codeContainer = document.createElement('div');
+                codeContainer.className = 'timeline-code';
+
+                // Add language label if provided
+                if (snippet.language) {
+                    const langLabel = document.createElement('div');
+                    langLabel.className = 'code-language';
+                    langLabel.textContent = snippet.language;
+                    codeContainer.appendChild(langLabel);
+                }
+
+                // Code content
+                const pre = document.createElement('pre');
+                const code = document.createElement('code');
+                if (snippet.language) {
+                    code.className = `language-${snippet.language}`;
+                }
+                code.textContent = snippet.code;
+                pre.appendChild(code);
+                codeContainer.appendChild(pre);
+
+                // Copy button
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-code-btn';
+                copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                copyBtn.title = 'Copy code';
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(snippet.code);
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+                    }, 2000);
+                });
+                codeContainer.appendChild(copyBtn);
+
+                container.appendChild(codeContainer);
+            });
+        }
+
+        function addVideosToExpandableContent(container, videoLinks) {
+            const videosContainer = document.createElement('div');
+            videosContainer.className = 'timeline-videos';
+
+            videoLinks.forEach(video => {
+                // Create iframe or link based on type
+                if (video.embed) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = video.url;
+                    iframe.width = video.width || '100%';
+                    iframe.height = video.height || '315';
+                    iframe.allowFullscreen = true;
+                    iframe.loading = 'lazy';
+                    videosContainer.appendChild(iframe);
+                } else {
+                    const videoLink = document.createElement('a');
+                    videoLink.href = video.url;
+                    videoLink.className = 'video-link';
+                    videoLink.target = '_blank';
+                    videoLink.rel = 'noopener';
+                    videoLink.innerHTML = `<i class="fas fa-play-circle"></i> ${video.title || 'Watch video'}`;
+                    videosContainer.appendChild(videoLink);
+                }
+            });
+
+            container.appendChild(videosContainer);
+        }
+
+        function addPollToExpandableContent(container, poll) {
+            const pollContainer = document.createElement('div');
+            pollContainer.className = 'timeline-poll';
+
+            // Poll question
+            const pollQuestion = document.createElement('h4');
+            pollQuestion.className = 'poll-question';
+            pollQuestion.textContent = poll.question;
+            pollContainer.appendChild(pollQuestion);
+
+            // Poll options
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'poll-options';
+
+            poll.options.forEach(option => {
+                const optionButton = document.createElement('button');
+                optionButton.className = 'poll-option';
+                optionButton.textContent = option;
+                optionButton.addEventListener('click', () => {
+                    alert(`Poll voting would be implemented with a backend. You selected: ${option}`);
+                });
+                optionsContainer.appendChild(optionButton);
+            });
+
+            pollContainer.appendChild(optionsContainer);
+            container.appendChild(pollContainer);
+        }
+
+        function addLinksToExpandableContent(container, links) {
+            const linksContainer = document.createElement('div');
+            linksContainer.className = 'timeline-links';
+
+            links.forEach(link => {
+                const linkElement = document.createElement('a');
+                linkElement.href = link.url;
+                linkElement.className = 'timeline-link';
+                linkElement.target = '_blank';
+                linkElement.rel = 'noopener';
+
+                // Add icon if specified
+                if (link.icon) {
+                    linkElement.innerHTML = `<i class="fas fa-${link.icon}"></i> `;
+                }
+                linkElement.innerHTML += link.text;
+
+                linksContainer.appendChild(linkElement);
+            });
+
+            container.appendChild(linksContainer);
+        }
+
+        function openImageModal(src) {
+            const modal = document.getElementById('gallery-modal');
+            if (!modal) {
+                // Create modal if it doesn't exist
+                createImageModal(src);
+                return;
+            }
+
+            const modalImg = document.getElementById('modal-img');
+            modal.style.display = 'block';
+            modalImg.src = src;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function createImageModal(src) {
+            // Create modal elements
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'gallery-modal';
+
+            const closeBtn = document.createElement('span');
+            closeBtn.className = 'modal-close';
+            closeBtn.innerHTML = '&times;';
+
+            const modalImg = document.createElement('img');
+            modalImg.className = 'modal-content';
+            modalImg.id = 'modal-img';
+            modalImg.src = src;
+
+            // Add to DOM
+            modal.appendChild(closeBtn);
+            modal.appendChild(modalImg);
+            document.body.appendChild(modal);
+
+            // Add event listeners
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            document.body.style.overflow = 'hidden';
+        }
+
+        function initializeSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+
+            // Search on button click
+            searchBtn.addEventListener('click', performSearch);
+
+            // Search on Enter key
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+
+                if (!searchTerm) {
+                    // Reset filter if search term is empty
+                    filteredEntries = filterEntriesByTag(allEntries, activeTag);
+                } else {
+                    // Filter entries by search term
+                    const tagFilteredEntries = filterEntriesByTag(allEntries, activeTag);
+                    filteredEntries = tagFilteredEntries.filter(entry => {
+                        return (
+                            entry.title.toLowerCase().includes(searchTerm) ||
+                            entry.description.toLowerCase().includes(searchTerm) ||
+                            (entry.tags && entry.tags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
+                            (entry.bulletPoints && entry.bulletPoints.some(point => point.toLowerCase().includes(searchTerm)))
+                        );
+                    });
+                }
+
+                // Reset to first page
+                currentPage = 1;
+                totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
+
+                // Render updates and pagination
+                renderPageNumbers();
+                renderDevlogEntries();
+            }
+        }
+
+        function initializeFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active state
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Get selected tag
+                    activeTag = button.dataset.tag;
+
+                    // Filter entries
+                    filteredEntries = filterEntriesByTag(allEntries, activeTag);
+
+                    // Apply any existing search filter
+                    const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+                    if (searchTerm) {
+                        filteredEntries = filteredEntries.filter(entry => {
+                            return (
+                                entry.title.toLowerCase().includes(searchTerm) ||
+                                entry.description.toLowerCase().includes(searchTerm) ||
+                                (entry.tags && entry.tags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
+                                (entry.bulletPoints && entry.bulletPoints.some(point => point.toLowerCase().includes(searchTerm)))
+                            );
+                        });
+                    }
+
+                    // Reset to first page
+                    currentPage = 1;
+                    totalPages = Math.ceil(filteredEntries.length / entriesPerPage);
+
+                    // Render updates and pagination
+                    renderPageNumbers();
+                    renderDevlogEntries();
+                });
+            });
+        }
+
+        function filterEntriesByTag(entries, tag) {
+            if (tag === 'all') {
+                return entries;
+            } else {
+                return entries.filter(entry => entry.tags && entry.tags.includes(tag));
+            }
+        }
+
+        function renderPageNumbers() {
+            const pageNumbers = document.getElementById('page-numbers');
+            pageNumbers.innerHTML = '';
+
+            // Determine range of pages to show
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+
+            // Adjust if we're near the end
+            if (endPage - startPage < 4 && startPage > 1) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            // First page button if not in range
+            if (startPage > 1) {
+                const firstPageBtn = document.createElement('button');
+                firstPageBtn.className = 'page-btn';
+                firstPageBtn.textContent = '1';
+                firstPageBtn.addEventListener('click', () => changePage(1));
+                pageNumbers.appendChild(firstPageBtn);
+
+                // Add ellipsis if needed
+                if (startPage > 2) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pageNumbers.appendChild(ellipsis);
+                }
+            }
+
+            // Page numbers
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'page-btn';
+                if (i === currentPage) {
+                    pageBtn.classList.add('active');
+                }
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => changePage(i));
+                pageNumbers.appendChild(pageBtn);
+            }
+
+            // Last page button if not in range
+            if (endPage < totalPages) {
+                // Add ellipsis if needed
+                if (endPage < totalPages - 1) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'page-ellipsis';
+                    ellipsis.textContent = '...';
+                    pageNumbers.appendChild(ellipsis);
+                }
+
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.className = 'page-btn';
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.addEventListener('click', () => changePage(totalPages));
+                pageNumbers.appendChild(lastPageBtn);
+            }
+        }
+
+        function updatePaginationButtons() {
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+
+            // Update disabled states
+            if (currentPage <= 1) {
+                prevPageBtn.classList.add('disabled');
+            } else {
+                prevPageBtn.classList.remove('disabled');
+            }
+
+            if (currentPage >= totalPages) {
+                nextPageBtn.classList.add('disabled');
+            } else {
+                nextPageBtn.classList.remove('disabled');
+            }
+
+            // Add click handlers
+            prevPageBtn.onclick = () => {
+                if (currentPage > 1) {
+                    changePage(currentPage - 1);
+                }
+            };
+
+            nextPageBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    changePage(currentPage + 1);
+                }
+            };
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderDevlogEntries();
+            renderPageNumbers();
+
+            // Scroll to top of timeline
+            document.getElementById('devlog-timeline').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    </script>
+</body>
+</html>
+
